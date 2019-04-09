@@ -16,10 +16,8 @@
 #' get_prediction_daily()
 #' @export
 
-get_prediction_daily <- function(info_df, #  需要计算的数据集
-                                 diff_days = 90, #  需要比较的近期天数
-                                 diff_base = 1.02, # 近期差异加权系数(乘方)
-                                 train_cr = 0.7,
+get_prediction_daily <- function(df_list, #  需要计算的数据集
+                                 type = "train", # 以训练集拟合参数
                                  ring_retain_new = c(0.8480, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861, 0.99, 0.99), # 新用户环比系数
                                  ring_retain_old = 0.98, # 老用户环比系数
                                  prediction_retain_one = 0.48, # 需要预测的新用户次留(计算总留存天数)
@@ -27,20 +25,34 @@ get_prediction_daily <- function(info_df, #  需要计算的数据集
                                  csv = FALSE, # 是否输出 prediction.csv
                                  plot = TRUE, # 是否作图
                                  message = FALSE, # 是否打印信息
-                                 smooth = FALSE # 是否先做时序分析取趋势
+                                 smooth = FALSE, # 是否先做时序分析取趋势
+                                 analysis = FALSE # 是否分析新老各段新增用户的留存贡献
 ) {
+
+  if (class(df_list) != "df_list") {
+    message("数据集不合法,请使用make_df()处理的csv数据集!")
+    return()
+  } else {
+    info_df <- switch (type,
+                       "train" = df_list$train_df,
+                       "test" = df_list$test_df
+                       )
+    train_days <- df_list$train_days
+    diff_days <- df_list$diff_days
+    diff_base <- df_list$diff_base
+  }
 
   # 生成存储文件名所需
   run_time <- format(Sys.time(), "%Y_%m_%d_%H_%M_%S")
   # 文件一共有多少天(包括已有数据日及需预测日)
-  days <- nrow(info_df)
+  total_days <- nrow(info_df)
 
   # 对波动较大的数据的做平滑
   if (smooth) {
     DAU <- ts(info_df$DAU, start = c(1,1), frequency = 7)
     fit <- stl(DAU, s.window = "period", na.action = na.omit)
     trend <- as_tibble(fit$time.series)$trend
-    info_df$DAU <- c(trend, rep(NA, days - length(trend)))
+    info_df$DAU <- c(trend, rep(NA, total_days - length(trend)))
   }
 
   # 读入实际活跃,新增,次留设定,计算日的老用户活跃等
@@ -48,17 +60,17 @@ get_prediction_daily <- function(info_df, #  需要计算的数据集
   retain_rate_1 <- info_df$retain_rate_1
   new_users_input <- info_df$DNU
 
-  trues <- na.omit(info_df$DAU) %>% length()
+  true_days <- na.omit(info_df$DAU) %>% length()
 
   # 每个环比参数影响的天数
-  rep_days <- c(if_max(days, 2),
-                if_max(days, 4),
-                if_max(days, 7),
-                if_max(days, 16),
-                if_max(days, 30),
-                if_max(days, 120),
-                if_max(days, 180),
-                if_max(days, days - 360))
+  rep_days <- c(if_max(total_days, 2),
+                if_max(total_days, 4),
+                if_max(total_days, 7),
+                if_max(total_days, 16),
+                if_max(total_days, 30),
+                if_max(total_days, 120),
+                if_max(total_days, 180),
+                if_max(total_days, total_days - 360))
 
   # 得到各日相对于首日的环比留存率
   if(is.character(ring_retain_new)) {
@@ -70,7 +82,7 @@ get_prediction_daily <- function(info_df, #  需要计算的数据集
     cumprod
 
   # 老用户留存
-  ring_retain_old_rates <- rep(ring_retain_old, days - 1) %>%
+  ring_retain_old_rates <- rep(ring_retain_old, total_days - 1) %>%
     cumprod
 
   # 不同天留存计算成矩阵, 1为新增当日, .x为次留
@@ -78,11 +90,11 @@ get_prediction_daily <- function(info_df, #  需要计算的数据集
     do.call(rbind, .)
 
   # 基于第 i 天新增用户的 n 日留存率
-  retain_users_detail <- imap(new_users_input, ~c(rep(0, .y - 1), .x * retain_rates[.y, ], rep(0, days - .y + 1))) %>%
+  retain_users_detail <- imap(new_users_input, ~c(rep(0, .y - 1), .x * retain_rates[.y, ], rep(0, total_days - .y + 1))) %>%
     do.call(rbind, .)
 
   # 每日所有留存加和得到每天历史新增留存的活跃
-  retain_users_new_daily <- colSums(retain_users_detail)[1:days] %>%
+  retain_users_new_daily <- colSums(retain_users_detail)[1:total_days] %>%
     round()
 
   # 老用户留存活跃
@@ -91,46 +103,46 @@ get_prediction_daily <- function(info_df, #  需要计算的数据集
   # 当日总活跃
   retain_users_daily <- retain_users_new_daily + retain_users_old_daily
 
-  # 活跃中新增
-  retain_users_new_0 <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
-                                                days = days,
-                                                start_n = 0,
-                                                end_n = 0)
-  # 活跃中1-7日留存
-  retain_users_new_7 <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
-                                                days = days,
-                                                start_n = 1,
-                                                end_n = 7)
-  # 活跃中8-15日留存
-  retain_users_new_15 <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
-                                                 days = days,
-                                                 start_n = 8,
-                                                 end_n = 15)
-  # 活跃中16-30日留存
-  retain_users_new_30 <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
-                                                 days = days,
-                                                 start_n = 16,
-                                                 end_n = 30)
-  # 活跃中31+日留存
-  retain_users_new_old <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
-                                                  days = days,
-                                                  start_n = 31,
-                                                  end_n = days) + retain_users_old_daily
-
   # 将预测每日DAU写进 info_df 计算差异
   info_df$retain_users_daily <- retain_users_daily[1:nrow(info_df)]
   info_df$diff_rate <- info_df$retain_users_daily / info_df$DAU - 1
-  info_df$retain_users_new_0 <- retain_users_new_0
-  info_df$retain_users_new_7 <- retain_users_new_7
-  info_df$retain_users_new_15 <- retain_users_new_15
-  info_df$retain_users_new_30 <- retain_users_new_30
-  info_df$retain_users_new_old <- retain_users_new_old
 
-  info_df$retain_users_new_0_cr <- round(info_df$retain_users_new_0/info_df$retain_users_daily, 3)
-  info_df$retain_users_new_7_cr <- round(info_df$retain_users_new_7/info_df$retain_users_daily, 3)
-  info_df$retain_users_new_15_cr <- round(info_df$retain_users_new_15/info_df$retain_users_daily, 3)
-  info_df$retain_users_new_30_cr <- round(info_df$retain_users_new_30/info_df$retain_users_daily, 3)
-  info_df$retain_users_new_old_cr <- round(info_df$retain_users_new_old/info_df$retain_users_daily, 3)
+  # 分析各时期新增的用户在当天的留存分布
+  if (analysis) {
+
+    # 活跃中新增
+    info_df$retain_users_new_0 <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
+                                                          total_days = total_days,
+                                                          start_n = 0,
+                                                          end_n = 0)
+    # 活跃中1-7日留存
+    info_df$retain_users_new_7 <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
+                                                          total_days = total_days,
+                                                          start_n = 1,
+                                                          end_n = 7)
+    # 活跃中8-15日留存
+    info_df$retain_users_new_15 <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
+                                                           total_days = total_days,
+                                                           start_n = 8,
+                                                           end_n = 15)
+    # 活跃中16-30日留存
+    info_df$retain_users_new_30 <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
+                                                           total_days = total_days,
+                                                           start_n = 16,
+                                                           end_n = 30)
+    # 活跃中31+日留存
+    info_df$retain_users_new_old <- get_retain_users_n_days(retain_users_detail = retain_users_detail,
+                                                            total_days = total_days,
+                                                            start_n = 31,
+                                                            end_n = total_days) + retain_users_old_daily
+
+    info_df$retain_users_new_0_cr <- round(info_df$retain_users_new_0/info_df$retain_users_daily, 3)
+    info_df$retain_users_new_7_cr <- round(info_df$retain_users_new_7/info_df$retain_users_daily, 3)
+    info_df$retain_users_new_15_cr <- round(info_df$retain_users_new_15/info_df$retain_users_daily, 3)
+    info_df$retain_users_new_30_cr <- round(info_df$retain_users_new_30/info_df$retain_users_daily, 3)
+    info_df$retain_users_new_old_cr <- round(info_df$retain_users_new_old/info_df$retain_users_daily, 3)
+
+  }
 
   # 输出info_df
   if(csv) write.csv(info_df, paste0("prediction_", run_time, ".csv"))
@@ -146,15 +158,18 @@ get_prediction_daily <- function(info_df, #  需要计算的数据集
     median() %>%
     round(5)
 
-  if (message) message(paste0("训练数据共有:", trues, "日\n末", diff_days, "日加权差异绝对值为:", tail_diff*100, "%"))
+  if (message) message(paste0("训练数据共有:", true_days, "日\n末", diff_days, "日加权差异绝对值为:", tail_diff*100, "%"))
 
   # 绘图观察拟合情况
 
   if (plot) {
-    df_fit <- info_df[1:trues, ]
+    df_fit <- info_df[1:true_days, ]
+    test_date <- df_fit$Date[train_days]
+
     graph_fit <- ggplot(df_fit) +
       geom_line(aes(x = Date, y = DAU, color = "real")) +
       geom_line(aes(x = Date, y = retain_users_daily, color = "predict")) +
+      geom_vline(xintercept = test_date) +
       scale_x_date(breaks = seq(max(df_fit$Date), min(df_fit$Date), length.out = 20)) +
       scale_colour_manual(name = "fit",
                           values = c(real = "red",
@@ -165,6 +180,7 @@ get_prediction_daily <- function(info_df, #  需要计算的数据集
     graph_prediction <- ggplot(df_prediction) +
       geom_line(aes(x = Date, y = DAU, color = "real")) +
       geom_line(aes(x = Date, y = retain_users_daily, color = "predict")) +
+      geom_vline(xintercept = test_date) +
       scale_x_date(breaks = seq(max(df_prediction$Date), min(df_prediction$Date), length.out = 20)) +
       scale_colour_manual(name = "predict",
                           values = c(real = "red",
@@ -199,7 +215,7 @@ get_prediction_daily <- function(info_df, #  需要计算的数据集
 
   res_df <- tibble(
     diff = tail_diff,  # 加权差异
-    days = days, # 总天数
+    total_days = total_days, # 总天数
     ring_retain_new = paste(ring_retain_new, collapse = ","), # 新用户环比系数
     ring_retain_old = ring_retain_old,  # 老用户环比系数
     life_time_new = life_time$new,
