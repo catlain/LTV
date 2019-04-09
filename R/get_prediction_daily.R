@@ -16,9 +16,10 @@
 #' get_prediction_daily()
 #' @export
 
-get_prediction_daily <- function(diff_days = 90, #  需要比较的近期天数
+get_prediction_daily <- function(info_df, #  需要计算的数据集
+                                 diff_days = 90, #  需要比较的近期天数
                                  diff_base = 1.02, # 近期差异加权系数(乘方)
-                                 file_name = "Data/info.csv", # 输入文件名
+                                 train_cr = 0.7,
                                  ring_retain_new = c(0.8480, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861, 0.99, 0.99), # 新用户环比系数
                                  ring_retain_old = 0.98, # 老用户环比系数
                                  prediction_retain_one = 0.48, # 需要预测的新用户次留(计算总留存天数)
@@ -29,16 +30,10 @@ get_prediction_daily <- function(diff_days = 90, #  需要比较的近期天数
                                  smooth = FALSE # 是否先做时序分析取趋势
 ) {
 
-  # 读取文件
-
-  info_df <- read.csv(file_name, stringsAsFactors = FALSE) %>%
-    unique() %>%
-    filter(DNU > 0, !str_detect(retain_rate_1, "-")) %>%
-    mutate(retain_rate_1 = as.numeric(retain_rate_1),
-           Date = as.Date(Date))
-
-  run_time <- format(Sys.time(), "%Y_%m_%d_%H_%M_%S") # 生成存储文件名所需
-  days <- nrow(info_df)  # 文件一共有多少天(包括已有数据日及需预测日)
+  # 生成存储文件名所需
+  run_time <- format(Sys.time(), "%Y_%m_%d_%H_%M_%S")
+  # 文件一共有多少天(包括已有数据日及需预测日)
+  days <- nrow(info_df)
 
   # 对波动较大的数据的做平滑
   if (smooth) {
@@ -48,8 +43,8 @@ get_prediction_daily <- function(diff_days = 90, #  需要比较的近期天数
     info_df$DAU <- c(trend, rep(NA, days - length(trend)))
   }
 
-  # 读入实际DAU及新增,次留设定
-  retain_users_old_daily_true <- info_df$Old_DAU[1]
+  # 读入实际活跃,新增,次留设定,计算日的老用户活跃等
+  retain_users_old_daily_true <- info_df$DAU[1] - info_df$DNU[1]
   retain_rate_1 <- info_df$retain_rate_1
   new_users_input <- info_df$DNU
 
@@ -67,7 +62,7 @@ get_prediction_daily <- function(diff_days = 90, #  需要比较的近期天数
 
   # 得到各日相对于首日的环比留存率
   if(is.character(ring_retain_new)) {
-    ring_retain_new <- str_split(ring_retain_new, ",")[[1]]
+    ring_retain_new <- stringr::str_split(ring_retain_new, ",")[[1]]
   }
 
   ring_retain_new_rates <- map2(ring_retain_new, rep_days, rep) %>%
@@ -140,18 +135,18 @@ get_prediction_daily <- function(diff_days = 90, #  需要比较的近期天数
   # 输出info_df
   if(csv) write.csv(info_df, paste0("prediction_", run_time, ".csv"))
 
-  # 差异中位数
+  # 按近期加权的方法求训练数据中近期各日差异的中位数
   tail_diff <- info_df$diff_rate %>%
     na.omit() %>%
     tail(diff_days)
 
   tail_diff <- tail_diff[length(tail_diff):1] %>%
-    `*`(diff_base^(1:diff_days)) %>% # 越近期权重越大
+    multiply_by(diff_base^(1:diff_days)) %>% # 越近期权重越大
     abs() %>%
     median() %>%
     round(5)
 
-  if (message) message(paste0("真实数据共有:", trues, "日\n末", diff_days, "日加权差异绝对值为:", tail_diff*100, "%"))
+  if (message) message(paste0("训练数据共有:", trues, "日\n末", diff_days, "日加权差异绝对值为:", tail_diff*100, "%"))
 
   # 绘图观察拟合情况
 

@@ -2,10 +2,13 @@
 
 export(get_prediction_daily)
 export(get_ring_retain)
-import(purrr)
+export(make_df)
+
 import(customLayout)
 import(ggplot2)
 import(dplyr)
-import(tibble)
-import(stringr)
 import(forecast)
+importFrom(purrr, map)
+importFrom(magrittr, multiply_by)
+importFrom(stringr, str_detect, str_split)
+

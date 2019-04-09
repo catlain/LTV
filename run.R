@@ -1,6 +1,8 @@
 require(LTV)
 require(parallel)
 require(doParallel)
+require(dplyr)
+require(purrr)
 require(tidyr)
 no_cores <- detectCores() - 1
 
@@ -24,6 +26,7 @@ best_retain <- get_prediction_daily(ring_retain_new = ring_retain_new_parameter,
 best_retain
 
 # 暴力猜参数 -------------------------------------------------------------------
+df_list <- make_df(file_name = "Data/word_game_info_base_10.csv", train_cr = 0.9)
 
 cl <- makeCluster(no_cores)
 registerDoParallel(cl)
@@ -39,15 +42,15 @@ res <- foreach(i = 1:10000,
                       )) %dopar% {
   res <- get_ring_retain(start = 0.3, max = 0.99999)
   tryCatch({
-    get_prediction_daily(diff_days = 30, # 需要比较的近期天数
+    get_prediction_daily(info_df = df_list$train_df, # 以训练集拟合参数
+                         diff_days = 20, # 需要比较的近期天数
                          diff_base = 1.02, # 近期差异加权系数（乘方）
                          ring_retain_new = res$ring_retain_new,
                          ring_retain_old = res$ring_retain_old,
                          csv = FALSE,
                          plot = FALSE,
                          message = FALSE,
-                         smooth = FALSE,
-                         file_name = "Data/word_game_info_base_10.csv"
+                         smooth = FALSE
     )
   }, error = function(e) e)
   }
@@ -58,7 +61,7 @@ stopCluster(cl)
 
 # 从所有尝试中得到差异最小的100组,取中位数
 top_res <- arrange(res, diff) %>%
-  head(200) %>%
+  head(100) %>%
   separate(ring_retain_new, sep = ",", paste0("retain_new", c(2, 4, 7, 16, 30, 120, 180, 360)), convert = TRUE) %>%
   select(contains("retain_new"), ring_retain_old)
 
@@ -82,19 +85,19 @@ violence_best_retain$ring_retain_old <- best_res$ring_retain_old
 # 使用最好的一组,设定需要预测天数的次留,并画图 -------------------------------------------------
 
 # info_df <- read.csv("info.csv")
-get_prediction_daily(diff_days = 30, # 需要比较的近期天数
-                     diff_base = 1.02, # 近期差异加权系数（乘方）k
+get_prediction_daily(info_df = df_list$test_df,
+                     diff_days = 50, # 需要比较的近期天数
+                     diff_base = 1.01, # 近期差异加权系数（乘方）k
                      #####################################################################
                      prediction_retain_one = 0.48,  # 需要预测的新用户次留(计算总留存天数)
                      life_time_year = 1, # 预测生命周期年数
                      #####################################################################
                      ring_retain_new = violence_best_retain$ring_retain_new,
                      ring_retain_old = violence_best_retain$ring_retain_old,
-                     csv = FALSE,  # 是否输出 prediction.csv
+                     csv = TRUE,  # 是否输出 prediction.csv
                      plot = TRUE,  # 是否作图
                      message = TRUE, # 是否打印信息
-                     smooth = FALSE,
-                     file_name = "Data/word_game_info_base_10.csv"
+                     smooth = FALSE
                      )
 
 violence_best_retain$ring_retain_new # 新用户环比参数
