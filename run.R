@@ -7,7 +7,26 @@ require(tidyr)
 no_cores <- detectCores() - 1
 
 # 暴力猜参数 -------------------------------------------------------------------
-df_list <- make_df(file_name = "Data/word_game_info_base_3.csv", train_cr = 1, diff_cr = 0.2)
+
+for (i in 4:9) {
+  message("i : ", i)
+  get_fit(no_cores = no_cores,
+          file_name = "Data/word_game_info_base_3.csv",
+          n = 5000,
+          train_cr = i * 0.1,
+          diff_cr = 0.5,
+          start = 0.2)
+}
+
+get_fit(no_cores = no_cores,
+        file_name = "Data/word_game_info_base_3.csv",
+        n = 10000,
+        train_cr = 0.7,
+        diff_cr = 0.1)
+
+
+# 暴力猜参数 -------------------------------------------------------------------
+df_list <- make_df(file_name = "Data/word_game_info_base_3.csv", train_cr = 0.7, diff_cr = 0.3)
 
 cl <- makeCluster(no_cores)
 registerDoParallel(cl)
@@ -73,7 +92,7 @@ get_prediction_daily(df_list = df_list,
                      #####################################################################
                      ring_retain_new = violence_best_retain$ring_retain_new,
                      ring_retain_old = violence_best_retain$ring_retain_old,
-                     csv = TRUE,  # 是否输出 prediction.csv
+                     csv = FALSE,  # 是否输出 prediction.csv
                      plot = TRUE,  # 是否作图
                      message = TRUE, # 是否打印信息
                      smooth = FALSE
