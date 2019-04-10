@@ -61,6 +61,7 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
   new_users_input <- info_df$DNU
 
   true_days <- na.omit(info_df$DAU) %>% length()
+  test_days <- true_days - train_days
 
   # 每个环比参数影响的天数 2,4,7,16,30,120,180,360
   rep_days <- c(if_max(total_days, 2),
@@ -147,13 +148,16 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
   # 输出info_df
   if(csv) write.csv(info_df, paste0("prediction_", run_time, ".csv"))
 
-  # 按近期加权的方法求训练数据中近期各日差异的中位数
+  # 差异体现在每天的差异的累加上:系数表现优良体现在日间差异减小
   tail_diff <- info_df$diff_rate %>%
     na.omit() %>%
     tail(diff_days)
 
-  tail_diff <- tail_diff[length(tail_diff):1] %>%
-    multiply_by(diff_base^(1:diff_days)) %>% # 越近期权重越大
+  # # 日间差异,观察是否维持不变(效果不好)
+  # tail_diff <- tail_diff - lag(tail_diff, n = 1,default = 0)
+
+  # 按近期加权的方法求训练数据中近期各日差异的中位数
+  tail_diff <- imap_dbl(tail_diff, ~ multiply_by(.x, diff_base^.y)) %>% # 越近期权重越大
     abs() %>%
     median() %>%
     round(5)
@@ -163,28 +167,39 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
   # 绘图观察拟合情况
 
   if (plot) {
+
+    # cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442") %>%
+    #   set_names(c("real", "predict", "test_date", "diff_date"))
+
+    # fit绘图的数据集
     df_fit <- info_df[1:true_days, ]
+
+    # test_date之后的时段作为验证集
     test_date <- df_fit$Date[train_days]
+    # diff_date到test_date之间为需要计算加权差异的重点拟合区间
+    diff_date <- tail(df_fit$Date,  test_days + diff_days)[1]
 
     graph_fit <- ggplot(df_fit) +
       geom_line(aes(x = Date, y = DAU, color = "real")) +
       geom_line(aes(x = Date, y = retain_users_daily, color = "predict")) +
-      geom_vline(xintercept = test_date) +
+      geom_vline(xintercept = test_date, color = "darkgreen", size = 0.6) +
+      geom_vline(xintercept = diff_date, color = "black", size = 0.5) +
       scale_x_date(breaks = seq(max(df_fit$Date), min(df_fit$Date), length.out = 20)) +
       scale_colour_manual(name = "fit",
-                          values = c(real = "red",
-                                     predict = "blue"))
+                          values = c("real" = "red",
+                                     "predict" = "blue"))
 
     # 绘图观察预测情况
     df_prediction <- info_df
     graph_prediction <- ggplot(df_prediction) +
       geom_line(aes(x = Date, y = DAU, color = "real")) +
       geom_line(aes(x = Date, y = retain_users_daily, color = "predict")) +
-      geom_vline(xintercept = test_date) +
+      geom_vline(xintercept = test_date, color = "darkgreen", size = 0.6) +
+      geom_vline(xintercept = diff_date, color = "black", size = 0.5) +
       scale_x_date(breaks = seq(max(df_prediction$Date), min(df_prediction$Date), length.out = 20)) +
       scale_colour_manual(name = "predict",
-                          values = c(real = "red",
-                                     predict = "blue"))
+                          values = c("real" = "red",
+                                     "predict" = "blue"))
 
     if(smooth) {
 
