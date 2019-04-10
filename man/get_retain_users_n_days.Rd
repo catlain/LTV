@@ -4,12 +4,12 @@
 \alias{get_retain_users_n_days}
 \title{get_retain_users_n_days}
 \usage{
-get_retain_users_n_days(retain_users_detail, days, start_n, end_n)
+get_retain_users_n_days(retain_users_detail, total_days, start_n, end_n)
 }
 \arguments{
 \item{retain_users_detail:}{retain_users_detail}
 
-\item{days:}{days}
+\item{total_days:}{total_days}
 
 \item{start_n:}{start_n}
 

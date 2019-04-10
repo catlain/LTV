@@ -207,7 +207,7 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
 
       cl <- lay_new(
         matrix(1:3, nc = 1),
-        heights = c(2, 2, 5))
+        heights = c(2, 2, 3))
 
       lay_grid(list(graph_fit, graph_prediction, graph_forecast), cl)
 

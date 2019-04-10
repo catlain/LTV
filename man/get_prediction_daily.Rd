@@ -4,11 +4,11 @@
 \alias{get_prediction_daily}
 \title{get_prediction_daily}
 \usage{
-get_prediction_daily(diff_days = 90, diff_base = 1.02,
-  file_name = "info.csv", ring_retain_new = c(0.848, 0.9138, 0.9525,
-  0.9679, 0.9801, 0.9861, 0.99, 0.99), ring_retain_old = 0.98,
-  prediction_retain_one = 0.48, life_time_year = 1, csv = FALSE,
-  plot = TRUE, message = FALSE, smooth = FALSE)
+get_prediction_daily(df_list, type = "train",
+  ring_retain_new = c(0.848, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861,
+  0.99, 0.99), ring_retain_old = 0.98, prediction_retain_one = 0.48,
+  life_time_year = 1, csv = FALSE, plot = TRUE, message = FALSE,
+  smooth = FALSE, analysis = FALSE)
 }
 \arguments{
 \item{diff_days:}{diff_days}
@@ -40,5 +40,5 @@ df
 get_prediction_daily
 }
 \examples{
-get_prediction_daily(file_name = "info.csv")
+get_prediction_daily()
 }

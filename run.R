@@ -11,10 +11,11 @@ no_cores <- detectCores() - 1
 for (i in 4:9) {
   message("i : ", i)
   get_fit(no_cores = no_cores,
-          file_name = "Data/word_game_info_base_3.csv",
-          n = 5000,
+          file_name = "Data/dau_appstore_new.csv",
+          n = 10000,
           train_cr = i * 0.1,
-          diff_cr = 0.5,
+          smooth = TRUE,
+          diff_days = 120,
           start = 0.2)
 }
 
@@ -26,7 +27,7 @@ get_fit(no_cores = no_cores,
 
 
 # 暴力猜参数 -------------------------------------------------------------------
-df_list <- make_df(file_name = "Data/word_game_info_base_3.csv", train_cr = 0.7, diff_cr = 0.3)
+df_list <- make_df(file_name = "Data/word_game_info_base_3.csv", train_cr = 0.7, diff_days = 30)
 
 cl <- makeCluster(no_cores)
 registerDoParallel(cl)
@@ -83,9 +84,9 @@ violence_best_retain$ring_retain_old <- best_res$ring_retain_old
 
 # 使用最好的一组,设定需要预测天数的次留,并画图 -------------------------------------------------
 
-# info_df <- read.csv("info.csv")
+violence_best_retain <- read.csv("parameter_2019_04_10_11_03_27.csv", stringsAsFactors = FALSE)
 get_prediction_daily(df_list = df_list,
-                     type = "test", # 以训练集拟合参数
+                     type = "train", # 以训练集拟合参数
                      #####################################################################
                      prediction_retain_one = 0.33,  # 需要预测的新用户次留(计算总留存天数)
                      life_time_year = 1, # 预测生命周期年数

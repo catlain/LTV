@@ -4,8 +4,8 @@
 \alias{get_life_time}
 \title{get_retain_users_n_days}
 \usage{
-get_life_time(ring_retain_new, prediction_retain_one, ring_retain_old,
-  life_time_year = 1)
+get_life_time(retain_users_old_daily_true, ring_retain_new,
+  prediction_retain_one, ring_retain_old, life_time_year = 1)
 }
 \arguments{
 \item{ring_retain_new:}{ring_retain_new}

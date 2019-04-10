@@ -1,11 +1,14 @@
-#' get_prediction_daily
-#' @description get_prediction_daily
+#' get_fit
+#' @description get_fit
 #' @param no_cores: no_cores
 #' @param file_name: file_name
 #' @param n: n
 #' @param train_cr: train_cr
-#' @param diff_cr: diff_cr
-#' @return
+#' @param diff_days: diff_days
+#' @param start: start
+#' @param max: max
+#' @param smooth: smooth
+#' @return NULL
 #' @examples
 #' get_fit()
 #' @export
@@ -14,11 +17,11 @@ get_fit <- function(no_cores,
                     file_name = "Data/info.csv",
                     n = 50000,
                     train_cr = 0.8,
-                    diff_cr = 0.5,
+                    diff_days = 30,
                     start = 0.3,
-                    max = 0.99999) {
-
-  df_list <- make_df(file_name = file_name, train_cr = train_cr, diff_cr = diff_cr)
+                    max = 0.99999,
+                    smooth = FALSE) {
+  df_list <- make_df(file_name = file_name, train_cr = train_cr, diff_days = diff_days)
 
   cl <- makeCluster(no_cores)
   registerDoParallel(cl)
@@ -41,7 +44,7 @@ get_fit <- function(no_cores,
                                           csv = FALSE,
                                           plot = FALSE,
                                           message = FALSE,
-                                          smooth = FALSE
+                                          smooth = smooth
                      )
                    }, error = function(e) e)
                  }
@@ -81,7 +84,7 @@ get_fit <- function(no_cores,
                        csv = FALSE,  # 是否输出 prediction.csv
                        plot = TRUE,  # 是否作图
                        message = TRUE, # 是否打印信息
-                       smooth = FALSE
+                       smooth = smooth
   )
   return(violence_best_retain)
 }
