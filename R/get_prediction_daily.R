@@ -62,7 +62,7 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
 
   true_days <- na.omit(info_df$DAU) %>% length()
 
-  # 每个环比参数影响的天数
+  # 每个环比参数影响的天数 2,4,7,16,30,120,180,360
   rep_days <- c(if_max(total_days, 2),
                 if_max(total_days, 4),
                 if_max(total_days, 7),
