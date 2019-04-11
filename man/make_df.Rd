@@ -20,7 +20,7 @@ make_df(file_name = "Data/info.csv", train_cr = 0.7, diff_days = 30,
 df_list
 }
 \description{
-get_prediction_daily
+make_df
 }
 \examples{
 make_df()

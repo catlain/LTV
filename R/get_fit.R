@@ -12,7 +12,10 @@
 #' @examples
 #' get_fit()
 #' @export
-
+#' @import parallel
+#' @import doParallel
+#' @import dplyr
+#'
 get_fit <- function(no_cores,
                     file_name = "Data/info.csv",
                     n = 50000,

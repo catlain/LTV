@@ -15,7 +15,12 @@
 #' @examples
 #' get_prediction_daily()
 #' @export
-
+#' @import customLayout
+#' @import forecast
+#' @import purrr
+#' @import dplyr
+#' @import ggplot2
+#'
 get_prediction_daily <- function(df_list, #  需要计算的数据集
                                  type = "train", # 以训练集拟合参数
                                  ring_retain_new = c(0.8480, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861, 0.99, 0.99), # 新用户环比系数

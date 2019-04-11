@@ -24,5 +24,4 @@ get_retain_users_n_days
 }
 \examples{
 get_life_time(10, 7, 30)
-
 }

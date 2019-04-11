@@ -7,8 +7,8 @@
 #' @return df
 #' @examples
 #' get_life_time(10, 7, 30)
+#' @import purrr
 #'
-
 # 根据环比留存及预计的新增次留计算生命周期
 get_life_time <- function(retain_users_old_daily_true, ring_retain_new, prediction_retain_one, ring_retain_old, life_time_year = 1){
   # 每个环比参数影响的天数

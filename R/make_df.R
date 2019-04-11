@@ -1,5 +1,5 @@
 #' make_df
-#' @description get_prediction_daily
+#' @description make_df
 #' @param file_name: file_name
 #' @param train_cr: train_cr
 #' @param diff_days: diff_days
@@ -8,8 +8,9 @@
 #' @examples
 #' make_df()
 #' @export
-
-
+#' @import stringr
+#' @import dplyr
+#'
 make_df <- function(file_name = "Data/info.csv", train_cr = 0.7, diff_days = 30, diff_base = 1.02) {
 
   if (train_cr < 0 | train_cr > 1) {
@@ -28,7 +29,7 @@ make_df <- function(file_name = "Data/info.csv", train_cr = 0.7, diff_days = 30,
 
   info_df <- read.csv(file_name, stringsAsFactors = FALSE) %>%
     unique() %>%
-    filter(DNU > 0, !stringr::str_detect(retain_rate_1, "-")) %>%
+    filter(DNU > 0, !str_detect(retain_rate_1, "-")) %>%
     mutate(retain_rate_1 = as.numeric(retain_rate_1),
            Date = as.Date(Date))
 

@@ -19,5 +19,4 @@ get_prediction_daily
 }
 \examples{
 if_max(days = 100, n = 10)
-
 }

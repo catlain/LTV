@@ -8,7 +8,6 @@
 #' get_ring_retain()
 #' @export
 #'
-
 # 随机获取环比留存参数
 get_ring_retain <- function (start = 0.6, n = 8, max = 0.999) {
 

@@ -23,5 +23,4 @@ get_retain_users_n_days
 }
 \examples{
 # get_retain_users_n_days(retain_users_detail = retain_users_detail, 10, 7, 30)
-
 }
