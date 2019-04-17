@@ -1,24 +1,27 @@
-#' get_fit
-#' @description get_fit
-#' @param no_cores: no_cores
-#' @param file_name: file_name
-#' @param n: n
-#' @param train_cr: train_cr
-#' @param diff_days: diff_days
-#' @param start: start
-#' @param max: max
-#' @param smooth: smooth
-#' @return NULL
+#' 重复随机试验计算最优参数
+#' @description 通过重复猜测环比参数，固定测试时间窗口的方式逐步计算测试日期内的预测结果与实际DAU的差异，得到最优的参数组合。
+#' @param no_cores: 并行任务时，可用的cpu核数，通过 parallel::detectCores 取得目前总核心数 -1 得到。
+#' @param file_name: 用来拟合的文件，包含真实DAU、DNU、次日留存等。默认 "Data/info.csv"
+#' @param times: 暴力预测次数，默认5000
+#' @param train_cr: 全部真实数据中用来做为训练的比例。默认0.8
+#' @param diff_days: 用于计算拟合差异的天数，从训练日最后一日倒推，对越近期的拟合成绩越看重。默认30
+#' @param start: 随机获得参数时，新用户留存参数的下限，即第一个参数--第3、4日对次日的环比系数--的下限。默认0.3
+#' @param max: 随机获得参数时，参数的上限，包括360日及以上新用户留存和老用户留存。默认0.9999
+#' @param smooth: 是否使用时序分析包(forecast)获取趋势，目前只支持排除7日(周)影响。默认FALSE
+#' @return 无返回值
 #' @examples
 #' get_fit()
 #' @export
 #' @import parallel
 #' @import doParallel
 #' @import dplyr
+#' @import purrr
+#' @import stringr
+#' @import forecast
 #'
 get_fit <- function(no_cores,
                     file_name = "Data/info.csv",
-                    n = 50000,
+                    times = 50000,
                     train_cr = 0.8,
                     diff_days = 30,
                     start = 0.3,

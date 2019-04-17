@@ -2,31 +2,34 @@
 % Please edit documentation in R/get_fit.R
 \name{get_fit}
 \alias{get_fit}
-\title{get_fit}
+\title{重复随机试验计算最优参数}
 \usage{
-get_fit(no_cores, file_name = "Data/info.csv", n = 50000,
+get_fit(no_cores, file_name = "Data/info.csv", times = 50000,
   train_cr = 0.8, diff_days = 30, start = 0.3, max = 0.99999,
   smooth = FALSE)
 }
 \arguments{
-\item{no_cores:}{no_cores}
+\item{no_cores:}{并行任务时，可用的cpu核数，通过 parallel::detectCores 取得目前总核心数 -1 得到。}
 
-\item{file_name:}{file_name}
+\item{file_name:}{用来拟合的文件，包含真实DAU、DNU、次日留存等。默认 "Data/info.csv"}
 
-\item{n:}{n}
+\item{times:}{暴力预测次数，默认5000}
 
-\item{train_cr:}{train_cr}
+\item{train_cr:}{全部真实数据中用来做为训练的比例。默认0.8}
 
-\item{diff_days:}{diff_days}
+\item{diff_days:}{用于计算拟合差异的天数，从训练日最后一日倒推，对越近期的拟合成绩越看重。默认30}
 
-\item{start:}{start}
+\item{start:}{随机获得参数时，新用户留存参数的下限，即第一个参数--第3、4日对次日的环比系数--的下限。默认0.3}
 
-\item{max:}{max}
+\item{max:}{随机获得参数时，参数的上限，包括360日及以上新用户留存和老用户留存。默认0.9999}
 
-\item{smooth:}{smooth}
+\item{smooth:}{是否使用时序分析包(forecast)获取趋势，目前只支持排除7日(周)影响。默认FALSE}
+}
+\value{
+无返回值
 }
 \description{
-get_fit
+通过重复猜测环比参数，固定测试时间窗口的方式逐步计算测试日期内的预测结果与实际DAU的差异，得到最优的参数组合。
 }
 \examples{
 get_fit()

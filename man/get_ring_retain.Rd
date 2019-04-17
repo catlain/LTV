@@ -2,22 +2,22 @@
 % Please edit documentation in R/get_ring_retain.R
 \name{get_ring_retain}
 \alias{get_ring_retain}
-\title{get_ring_retain}
+\title{随机获得新用户的环比系数}
 \usage{
 get_ring_retain(start = 0.6, n = 8, max = 0.999)
 }
 \arguments{
-\item{start:}{start}
+\item{n:}{随机获取环比参数的个性。默认8(对标2,4,7,16,30,120,180,360的时段划分)}
 
-\item{n:}{n}
+\item{start:}{随机获得参数时，新用户留存参数的下限，即第一个参数--第3、4日对次日的环比系数--的下限。默认0.3}
 
-\item{max:}{max}
+\item{max:}{随机获得参数时，参数的上限，包括360日及以上新用户留存和老用户留存。默认0.9999}
 }
 \value{
-list(ring_retain_new, ring_retain_old)
+环比留存参数列表(res)，包含新用户环比系数(ring_retain_new)，老用户环比系数(ring_retain_old)。
 }
 \description{
-get_ring_retain
+以\link{start,max}随机得到环比系数首项，后续各项(i)相比其前一项(i-1)均升高，升高幅度为lift\link{i}，而其下一项(i+1)相对自身(i)的升高程度(lift\link{i+1})小于等于lift(i)。以模拟留存随时间逐渐降低，但降低幅度越来越小的常态。
 }
 \examples{
 get_ring_retain()

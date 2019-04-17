@@ -2,25 +2,25 @@
 % Please edit documentation in R/get_life_time.R
 \name{get_life_time}
 \alias{get_life_time}
-\title{get_retain_users_n_days}
+\title{计算生命周期}
 \usage{
 get_life_time(retain_users_old_daily_true, ring_retain_new,
-  prediction_retain_one, ring_retain_old, life_time_year = 1)
+  prediction_retain_one, ring_retain_old, life_time_year)
 }
 \arguments{
-\item{ring_retain_new:}{ring_retain_new}
+\item{ring_retain_new:}{新用户的各段环比参数，可通过get_ring_retain()随机获得。}
 
-\item{prediction_retain_one:}{prediction_retain_one}
+\item{ring_retain_old:}{老用户的环比参数，可通过get_ring_retain()随机获得。}
 
-\item{ring_retain_old:}{ring_retain_old}
+\item{prediction_retain_one:}{计算生命周期时，预估未来新增的次日留存。}
 
-\item{life_time_year:}{days}
+\item{life_time_year:}{计算生命周期的时段(按年统计)。}
 }
 \value{
-df
+生命周期的列表(life_time)，包含新用户生命周期(new)，老用户生命周期(old)。
 }
 \description{
-get_retain_users_n_days
+通过新用户环比系数及老用户环比系数计算各自的生命周期。
 }
 \examples{
 get_life_time(10, 7, 30)

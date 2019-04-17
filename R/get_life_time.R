@@ -1,16 +1,20 @@
-#' get_retain_users_n_days
-#' @description get_retain_users_n_days
-#' @param ring_retain_new: ring_retain_new
-#' @param prediction_retain_one: prediction_retain_one
-#' @param ring_retain_old: ring_retain_old
-#' @param life_time_year: days
-#' @return df
+#' 计算生命周期
+#' @description 通过新用户环比系数及老用户环比系数计算各自的生命周期。
+#' @param ring_retain_new: 新用户的各段环比参数，可通过get_ring_retain()随机获得。
+#' @param ring_retain_old: 老用户的环比参数，可通过get_ring_retain()随机获得。
+#' @param prediction_retain_one: 计算生命周期时，预估未来新增的次日留存。
+#' @param life_time_year: 计算生命周期的时段(按年统计)。
+#' @return 生命周期的列表(life_time)，包含新用户生命周期(new)，老用户生命周期(old)。
 #' @examples
 #' get_life_time(10, 7, 30)
 #' @import purrr
 #'
 # 根据环比留存及预计的新增次留计算生命周期
-get_life_time <- function(retain_users_old_daily_true, ring_retain_new, prediction_retain_one, ring_retain_old, life_time_year = 1){
+get_life_time <- function(retain_users_old_daily_true,
+                          ring_retain_new,
+                          prediction_retain_one,
+                          ring_retain_old,
+                          life_time_year){
   # 每个环比参数影响的天数
   rep_days <- c(2, 4, 7, 16, 30, 120, 180, life_time_year*365 - 360)
 

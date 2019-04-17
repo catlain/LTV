@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_prediction_daily.R
 \name{get_prediction_daily}
 \alias{get_prediction_daily}
-\title{get_prediction_daily}
+\title{使用已有系数拟合预测DAU并计算差异}
 \usage{
 get_prediction_daily(df_list, type = "train",
   ring_retain_new = c(0.848, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861,
@@ -11,33 +11,33 @@ get_prediction_daily(df_list, type = "train",
   smooth = FALSE, analysis = FALSE)
 }
 \arguments{
-\item{diff_days:}{diff_days}
+\item{df_list:}{函数所需参数列表(df_list)，可由get_prediction_daily()获得。}
 
-\item{diff_base:}{diff_base}
+\item{type:}{"train",使用跟训练拟合有关的参数判断，以train_days为训练日期得到拟合结果再以test_df计算差异验证训练结果；"test",直接使用test_df拟合参数及计算差异。默认"train"}
 
-\item{file_name:}{file_name}
+\item{ring_retain_new:}{新用户的各段环比参数，可通过get_ring_retain()随机获得。默认 c(0.8480, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861, 0.99, 0.99)}
 
-\item{ring_retain_new:}{ring_retain_new}
+\item{ring_retain_old:}{老用户的环比参数，可通过get_ring_retain()随机获得。默认0.98}
 
-\item{ring_retain_old:}{ring_retain_old}
+\item{prediction_retain_one:}{计算生命周期时，预估未来新增的次日留存。默认0.48}
 
-\item{prediction_retain_one:}{prediction_retain_one}
+\item{life_time_year:}{计算生命周期的时段(按年统计)。默认1}
 
-\item{life_time_year:}{life_time_year}
+\item{csv:}{是否输出结果到csv文件，分别为预测结果(prediction_\emph{.csv)和参数(parameter_}.csv)。默认FALSE}
 
-\item{csv:}{csv}
+\item{plot:}{是否绘图。默认FALSE}
 
-\item{plot:}{plot}
+\item{message:}{是否输出运行中的信息。默认FALSE}
 
-\item{message:}{message}
+\item{smooth:}{是否使用时序分析包(forecast)获取趋势，目前只支持排除7日(周)影响。默认FALSE}
 
-\item{smooth:}{smooth}
+\item{analysis:}{是否分析新老各段新增用户的留存贡献。默认FALSE}
 }
 \value{
-df
+预测结果(df)
 }
 \description{
-get_prediction_daily
+根据新新用户各段环比参数及实际次日留存计算出每日留存曲线，结合每日实际新增预测各日新用户的每日总留存，再结合老用户按老用户环比参数计算出的老用户每日留存，加和得到每日预测DAU，并与每日实际DAU加权计算得到差异。
 }
 \examples{
 get_prediction_daily()

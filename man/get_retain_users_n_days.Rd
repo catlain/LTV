@@ -2,24 +2,24 @@
 % Please edit documentation in R/get_retain_users_n_days.R
 \name{get_retain_users_n_days}
 \alias{get_retain_users_n_days}
-\title{get_retain_users_n_days}
+\title{分析新老各段新增用户的留存贡献}
 \usage{
 get_retain_users_n_days(retain_users_detail, total_days, start_n, end_n)
 }
 \arguments{
-\item{retain_users_detail:}{retain_users_detail}
+\item{retain_users_detail:}{各日新增在每日的留存明细，通过实际新增和每日留存曲线计算得到。}
 
-\item{total_days:}{total_days}
+\item{total_days:}{需要计算DAU的总天数，与真实新增>0的天数相同。}
 
-\item{start_n:}{start_n}
+\item{start_n:}{活跃日距离计算日的最小天数}
 
-\item{end_n:}{end_n}
+\item{end_n:}{活跃日距离计算日的最大天数}
 }
 \value{
-df
+数字向量
 }
 \description{
-get_retain_users_n_days
+已知每日新增及留存曲线后，按新增日与活跃日的间隔计算距计算日新老程度不同的用户群对计算日DAU的贡献，
 }
 \examples{
 # get_retain_users_n_days(retain_users_detail = retain_users_detail, 10, 7, 30)
