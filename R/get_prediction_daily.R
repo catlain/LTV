@@ -20,6 +20,7 @@
 #' @import purrr
 #' @import dplyr
 #' @import ggplot2
+#' @importFrom magrittr multiply_by
 #'
 get_prediction_daily <- function(df_list, #  需要计算的数据集
                                  type = "train", # 以训练集拟合参数

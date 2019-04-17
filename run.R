@@ -11,19 +11,22 @@ no_cores <- detectCores() - 1
 for (i in 4:9) {
   message("i : ", i)
   get_fit(no_cores = no_cores,
-          file_name = "Data/dau_appstore_new.csv",
-          n = 10000,
+          file_name = "Data/info.csv",
+          times = 10000,
           train_cr = i * 0.1,
-          smooth = TRUE,
-          diff_days = 120,
+          smooth = FALSE,
+          diff_days = 60,
           start = 0.2)
 }
 
 get_fit(no_cores = no_cores,
-        file_name = "Data/word_game_info_base_3.csv",
-        n = 10000,
-        train_cr = 0.7,
-        diff_cr = 0.1)
+        file_name = "Data/info.csv",
+        times = 10000,
+        train_cr = 0.9,
+        smooth = FALSE, # 是否使用时序模型(排除周效应)
+        csv = TRUE, # 输出结果
+        diff_days = 30,
+        start = 0.5)
 
 
 # 暴力猜参数 -------------------------------------------------------------------

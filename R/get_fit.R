@@ -8,6 +8,7 @@
 #' @param start: 随机获得参数时，新用户留存参数的下限，即第一个参数--第3、4日对次日的环比系数--的下限。默认0.3
 #' @param max: 随机获得参数时，参数的上限，包括360日及以上新用户留存和老用户留存。默认0.9999
 #' @param smooth: 是否使用时序分析包(forecast)获取趋势，目前只支持排除7日(周)影响。默认FALSE
+#' @param csv: 是否输出结果到csv文件，分别为预测结果(prediction_*.csv)和参数(parameter_*.csv)。默认FALSE
 #' @return 无返回值
 #' @examples
 #' get_fit()
@@ -26,19 +27,22 @@ get_fit <- function(no_cores,
                     diff_days = 30,
                     start = 0.3,
                     max = 0.99999,
-                    smooth = FALSE) {
+                    smooth = FALSE,
+                    csv = FALSE
+                    ) {
   df_list <- make_df(file_name = file_name, train_cr = train_cr, diff_days = diff_days)
 
   cl <- makeCluster(no_cores)
   registerDoParallel(cl)
 
   start_time <- Sys.time()
-  res <- foreach(i = seq_len(n),
+  res <- foreach(i = seq_len(times),
                  .combine = rbind,
                  .packages = c("purrr",
                                "dplyr",
                                "stringr",
                                "forecast",
+                               "magrittr",
                                "LTV"
                  )) %dopar% {
                    res <- get_ring_retain(start = start, max = max)
@@ -87,7 +91,7 @@ get_fit <- function(no_cores,
                        #####################################################################
                        ring_retain_new = violence_best_retain$ring_retain_new,
                        ring_retain_old = violence_best_retain$ring_retain_old,
-                       csv = FALSE,  # 是否输出 prediction.csv
+                       csv = csv,  # 是否输出 prediction.csv
                        plot = TRUE,  # 是否作图
                        message = TRUE, # 是否打印信息
                        smooth = smooth
