@@ -2,7 +2,7 @@
 #' @description 通过重复猜测环比参数，固定测试时间窗口的方式逐步计算测试日期内的预测结果与实际DAU的差异，得到最优的参数组合。
 #' @param no_cores: 并行任务时，可用的cpu核数，通过 parallel::detectCores 取得目前总核心数 -1 得到。
 #' @param file_name: 用来拟合的文件，包含真实DAU、DNU、次日留存等。默认 "Data/info.csv"
-#' @param times: 暴力预测次数，默认5000
+#' @param times: 暴力预测次数，默认50000
 #' @param train_cr: 全部真实数据中用来做为训练的比例。默认0.8
 #' @param diff_days: 用于计算拟合差异的天数，从训练日最后一日倒推，对越近期的拟合成绩越看重。默认30
 #' @param start: 随机获得参数时，新用户留存参数的下限，即第一个参数--第3、4日对次日的环比系数--的下限。默认0.3
