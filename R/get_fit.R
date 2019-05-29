@@ -26,6 +26,7 @@ get_fit <- function(no_cores,
                     train_cr = 0.8,
                     diff_days = 30,
                     start = 0.3,
+                    prediction_retain_one = 0.33,
                     max = 0.99999,
                     smooth = FALSE,
                     csv = FALSE
@@ -86,7 +87,7 @@ get_fit <- function(no_cores,
   get_prediction_daily(df_list = df_list,
                        type = "test", # 以训练集拟合参数
                        #####################################################################
-                       prediction_retain_one = 0.33,  # 需要预测的新用户次留(计算总留存天数)
+                       prediction_retain_one = prediction_retain_one,  # 需要预测的新用户次留(计算总留存天数)
                        life_time_year = 1, # 预测生命周期年数
                        #####################################################################
                        ring_retain_new = violence_best_retain$ring_retain_new,

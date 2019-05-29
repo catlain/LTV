@@ -1,5 +1,6 @@
 #' 计算生命周期
 #' @description 通过新用户环比系数及老用户环比系数计算各自的生命周期。
+#' @param retain_users_old_daily_true: 老用户数。
 #' @param ring_retain_new: 新用户的各段环比参数，可通过get_ring_retain()随机获得。
 #' @param ring_retain_old: 老用户的环比参数，可通过get_ring_retain()随机获得。
 #' @param prediction_retain_one: 计算生命周期时，预估未来新增的次日留存。
@@ -34,6 +35,7 @@ get_life_time <- function(retain_users_old_daily_true,
   life_time <- list()
   life_time$new <- sum(ring_retain_new_rates * prediction_retain_one) + prediction_retain_one + 1  # 新用户LT(3日留存起 算 sum,再加首日次日留存)
   life_time$old <- if_else(retain_users_old_daily_true == 0, 0, sum(ring_retain_old_rates) + 1) # 老用户LT
+  life_time$ring_retain_new_rates <- ring_retain_new_rates # 预测留存
   return(life_time)
 
 }
