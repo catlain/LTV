@@ -5,15 +5,16 @@
 \title{重复随机试验计算最优参数}
 \usage{
 get_fit(no_cores, file_name = "Data/info.csv", times = 50000,
-  train_cr = 0.8, diff_days = 30, start = 0.3, max = 0.99999,
-  smooth = FALSE)
+  train_cr = 0.8, diff_days = 30, start = 0.3,
+  prediction_retain_one = 0.33, max = 0.99999, smooth = FALSE,
+  csv = FALSE)
 }
 \arguments{
 \item{no_cores:}{并行任务时，可用的cpu核数，通过 parallel::detectCores 取得目前总核心数 -1 得到。}
 
 \item{file_name:}{用来拟合的文件，包含真实DAU、DNU、次日留存等。默认 "Data/info.csv"}
 
-\item{times:}{暴力预测次数，默认5000}
+\item{times:}{暴力预测次数，默认50000}
 
 \item{train_cr:}{全部真实数据中用来做为训练的比例。默认0.8}
 
@@ -24,6 +25,8 @@ get_fit(no_cores, file_name = "Data/info.csv", times = 50000,
 \item{max:}{随机获得参数时，参数的上限，包括360日及以上新用户留存和老用户留存。默认0.9999}
 
 \item{smooth:}{是否使用时序分析包(forecast)获取趋势，目前只支持排除7日(周)影响。默认FALSE}
+
+\item{csv:}{是否输出结果到csv文件，分别为预测结果(prediction_\emph{.csv)和参数(parameter_}.csv)。默认FALSE}
 }
 \value{
 无返回值

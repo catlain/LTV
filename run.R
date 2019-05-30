@@ -4,7 +4,7 @@ require(doParallel)
 require(dplyr)
 require(purrr)
 require(tidyr)
-no_cores <- detectCores() - 1
+no_cores <- if_else(detectCores() - 1 >= 1, detectCores() - 1, 1)
 
 # 暴力猜参数 -------------------------------------------------------------------
 
@@ -19,15 +19,33 @@ for (i in 4:9) {
           start = 0.2)
 }
 
-get_fit(no_cores = no_cores,
-        file_name = "Data/info.csv",
-        times = 10000,
-        train_cr = 0.9,
-        smooth = FALSE, # 是否使用时序模型(排除周效应)
-        csv = TRUE, # 输出结果
-        diff_days = 30,
-        start = 0.5)
+res <- get_fit(no_cores = no_cores,
+               file_name = "Data/info.csv",
+               times = 10000,
+               train_cr = 0.9,
+               smooth = FALSE, # 是否使用时序模型(排除周效应)
+               csv = TRUE, # 输出结果
+               diff_days = 30,
+               start = 0.5)
 
+lt <- get_life_time(retain_users_old_daily_true = 0,
+                    ring_retain_new = res$ring_retain_new,
+                    prediction_retain_one = 0.64,
+                    ring_retain_old = 0,
+                    life_time_year = 1)
+
+# 新增用户生命周期
+lt$new
+
+# 新用户留存预估
+lt$ring_retain_new_rates
+
+# 新用户留存预估:30日留存
+lt$ring_retain_new_rates[30]
+
+
+# 老用户生命周期
+lt$old
 
 # 暴力猜参数 -------------------------------------------------------------------
 df_list <- make_df(file_name = "Data/word_game_info_base_3.csv", train_cr = 0.7, diff_days = 30)
