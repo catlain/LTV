@@ -2,7 +2,7 @@
 % Please edit documentation in R/if_max.R
 \name{if_max}
 \alias{if_max}
-\title{if_max}
+\title{判断数字大小}
 \usage{
 if_max(days, n)
 }
@@ -15,7 +15,7 @@ if_max(days, n)
 n or 0
 }
 \description{
-get_prediction_daily
+用于判断循环参数是否属于某个系数段内。
 }
 \examples{
 if_max(days = 100, n = 10)

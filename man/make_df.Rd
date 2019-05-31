@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_df.R
 \name{make_df}
 \alias{make_df}
-\title{make_df}
+\title{制作计算所需数据集}
 \usage{
 make_df(file_name = "Data/info.csv", train_cr = 0.7, diff_days = 30,
   diff_base = 1.02)
@@ -20,7 +20,7 @@ make_df(file_name = "Data/info.csv", train_cr = 0.7, diff_days = 30,
 提供给get_prediction_daily()的参数列表(df_list)，包含拟合数据集(train_df)，测试数据集(test_df)，基于真实数据拟合的天数(train_days)，用于计算拟合差异的天数(diff_days)，计算差异的加权(diff_base)
 }
 \description{
-make_df
+从csv文件中得到训练/测试数据集，差异天数，差异加权等。
 }
 \examples{
 make_df()

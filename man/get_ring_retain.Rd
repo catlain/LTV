@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_ring_retain.R
 \name{get_ring_retain}
 \alias{get_ring_retain}
-\title{get_ring_retain}
+\title{随机获得新用户的环比系数}
 \usage{
 get_ring_retain(start = 0.6, n = 8, max = 0.999)
 }
@@ -17,7 +17,7 @@ get_ring_retain(start = 0.6, n = 8, max = 0.999)
 环比留存参数列表(res)，包含新用户环比系数(ring_retain_new)，老用户环比系数(ring_retain_old)。
 }
 \description{
-随机获得新用户的环比系数：以\link{start,max}随机得到环比系数首项，后续各项(i)相比其前一项(i-1)均升高，升高幅度为lift\link{i}，而其下一项(i+1)相对自身(i)的升高程度(lift\link{i+1})小于等于lift(i)。以模拟留存随时间逐渐降低，但降低幅度越来越小的常态。
+以\link{start,max}随机得到环比系数首项，后续各项(i)相比其前一项(i-1)均升高，升高幅度为lift\link{i}，而其下一项(i+1)相对自身(i)的升高程度(lift\link{i+1})小于等于lift(i)。以模拟留存随时间逐渐降低，但降低幅度越来越小的常态。
 }
 \examples{
 get_ring_retain()

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_life_time.R
 \name{get_life_time}
 \alias{get_life_time}
-\title{get_life_time}
+\title{计算生命周期}
 \usage{
 get_life_time(retain_users_old_daily_true, ring_retain_new,
   prediction_retain_one, ring_retain_old, life_time_year)
@@ -22,7 +22,7 @@ get_life_time(retain_users_old_daily_true, ring_retain_new,
 生命周期的列表(life_time)，包含新用户生命周期(new)，老用户生命周期(old)，每日留存(ring_retain_new_rates)
 }
 \description{
-计算生命周期：通过新用户环比系数及老用户环比系数计算各自的生命周期。
+通过新用户环比系数及老用户环比系数计算各自的生命周期。
 }
 \examples{
 get_life_time(10, 7, 30)

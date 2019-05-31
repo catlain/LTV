@@ -1,5 +1,5 @@
-#' if_max
-#' @description get_prediction_daily
+#' 判断数字大小
+#' @description 用于判断循环参数是否属于某个系数段内。
 #' @param days: days
 #' @param n: n
 #' @return n or 0

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_prediction_daily.R
 \name{get_prediction_daily}
 \alias{get_prediction_daily}
-\title{get_prediction_daily}
+\title{使用已有系数拟合预测DAU并计算差异}
 \usage{
 get_prediction_daily(df_list, type = "train",
   ring_retain_new = c(0.848, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861,
@@ -37,7 +37,7 @@ get_prediction_daily(df_list, type = "train",
 预测结果(df)
 }
 \description{
-使用已有系数拟合预测DAU并计算差异：根据新新用户各段环比参数及实际次日留存计算出每日留存曲线，结合每日实际新增预测各日新用户的每日总留存，再结合老用户按老用户环比参数计算出的老用户每日留存，加和得到每日预测DAU，并与每日实际DAU加权计算得到差异。
+根据新新用户各段环比参数及实际次日留存计算出每日留存曲线，结合每日实际新增预测各日新用户的每日总留存，再结合老用户按老用户环比参数计算出的老用户每日留存，加和得到每日预测DAU，并与每日实际DAU加权计算得到差异。
 }
 \examples{
 get_prediction_daily()

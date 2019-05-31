@@ -1,5 +1,5 @@
-#' make_df
-#' @description make_df
+#' 制作计算所需数据集
+#' @description 从csv文件中得到训练/测试数据集，差异天数，差异加权等。
 #' @param file_name: 用来拟合的文件，包含真实DAU、DNU、次日留存等。默认 "Data/info.csv"
 #' @param train_cr: 全部真实数据中用来做为训练的比例。默认0.8
 #' @param diff_days: 用于计算拟合差异的天数，按截止日倒推，对越近期的拟合成绩越看重。默认30
