@@ -1,5 +1,5 @@
-#' 计算生命周期
-#' @description 通过新用户环比系数及老用户环比系数计算各自的生命周期。
+#' get_life_time
+#' @description 计算生命周期：通过新用户环比系数及老用户环比系数计算各自的生命周期。
 #' @param retain_users_old_daily_true: 需要计算的老用户数。
 #' @param ring_retain_new: 新用户的各段环比参数，可通过get_ring_retain()随机获得。
 #' @param ring_retain_old: 老用户的环比参数，可通过get_ring_retain()随机获得。

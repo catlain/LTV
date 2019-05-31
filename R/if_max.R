@@ -1,5 +1,4 @@
-
-#' get_prediction_daily
+#' if_max
 #' @description get_prediction_daily
 #' @param days: days
 #' @param n: n

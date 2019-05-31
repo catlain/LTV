@@ -2,7 +2,7 @@
 % Please edit documentation in R/if_max.R
 \name{if_max}
 \alias{if_max}
-\title{get_prediction_daily}
+\title{if_max}
 \usage{
 if_max(days, n)
 }

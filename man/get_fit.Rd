@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_fit.R
 \name{get_fit}
 \alias{get_fit}
-\title{重复随机试验计算最优参数}
+\title{get_fit}
 \usage{
 get_fit(no_cores, file_name = "Data/info.csv", times = 50000,
   train_cr = 0.8, diff_days = 30, start = 0.3,
@@ -32,7 +32,7 @@ get_fit(no_cores, file_name = "Data/info.csv", times = 50000,
 无返回值
 }
 \description{
-通过重复猜测环比参数，固定测试时间窗口的方式逐步计算测试日期内的预测结果与实际DAU的差异，得到最优的参数组合。
+重复随机试验计算最优参数：通过重复猜测环比参数，固定测试时间窗口的方式逐步计算测试日期内的预测结果与实际DAU的差异，得到最优的参数组合。
 }
 \examples{
 get_fit()
