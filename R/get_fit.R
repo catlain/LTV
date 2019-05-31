@@ -30,7 +30,7 @@ get_fit <- function(no_cores,
                     max = 0.99999,
                     smooth = FALSE,
                     csv = FALSE
-                    ) {
+) {
   df_list <- make_df(file_name = file_name, train_cr = train_cr, diff_days = diff_days)
 
   cl <- makeCluster(no_cores)
