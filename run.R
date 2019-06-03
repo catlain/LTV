@@ -23,6 +23,7 @@ res <- get_fit(no_cores = no_cores,
                file_name = "Data/info.csv",
                times = 10000,
                train_cr = 0.9,
+               prediction_retain_one = 0.64, # 需要用来计算生命周期的预估次留
                smooth = FALSE, # 是否使用时序模型(排除周效应)
                csv = TRUE, # 输出结果
                diff_days = 30,

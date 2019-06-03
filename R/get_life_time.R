@@ -10,6 +10,7 @@
 #' get_life_time(10, 7, 30)
 #' @export
 #' @import purrr
+#' @import stringr
 #'
 # 根据环比留存及预计的新增次留计算生命周期
 get_life_time <- function(retain_users_old_daily_true,
@@ -20,7 +21,7 @@ get_life_time <- function(retain_users_old_daily_true,
 
   # 得到各日相对于首日的环比留存率
   if(is.character(ring_retain_new)) {
-    ring_retain_new <- stringr::str_split(ring_retain_new, ",")[[1]]
+    ring_retain_new <- str_split(ring_retain_new, ",")[[1]]
   }
 
   # 每个环比参数影响的天数

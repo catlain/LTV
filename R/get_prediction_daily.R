@@ -20,7 +20,8 @@
 #' @import purrr
 #' @import dplyr
 #' @import ggplot2
-#' @importFrom magrittr multiply_by
+#' @import stringr
+#' @import magrittr
 #'
 get_prediction_daily <- function(df_list, #  需要计算的数据集
                                  type = "train", # 以训练集拟合参数
@@ -81,7 +82,7 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
 
   # 得到各日相对于首日的环比留存率
   if(is.character(ring_retain_new)) {
-    ring_retain_new <- stringr::str_split(ring_retain_new, ",")[[1]]
+    ring_retain_new <- str_split(ring_retain_new, ",")[[1]]
   }
 
   ring_retain_new_rates <- map2(ring_retain_new, rep_days, rep) %>%
