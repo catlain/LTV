@@ -4,6 +4,7 @@ require(doParallel)
 require(dplyr)
 require(purrr)
 require(tidyr)
+require(dfoptim) # 无导数优化
 no_cores <- if_else(detectCores() - 1 >= 1, detectCores() - 1, 1)
 
 # 暴力猜参数 -------------------------------------------------------------------
@@ -133,6 +134,7 @@ ring_retain_new_old <- 0.97
 
 
 # 输出修改参数后的结果 --------------------------------------------------------------
+
 df_list <- make_df(file_name = "Data/word_game_info_base_10.csv", train_cr = )
 
 best_retain <- get_prediction_daily(df_list = df_list, # 以训练集拟合参数
@@ -147,15 +149,7 @@ best_retain <- get_prediction_daily(df_list = df_list, # 以训练集拟合参�
                                     smooth = FALSE)
 best_retain
 
-# 最优化求参数 ----------------------------------------------------------------------
-
-file_name = "Data/dau_appstore_new.csv"
-train_cr = 0.98
-diff_days = 360
-smooth = TRUE
-csv = FALSE
-
-df_list <- make_df(file_name = file_name, train_cr = train_cr, diff_days = diff_days)
+# 无导数最优化求参数 ----------------------------------------------------------------------
 
 f <- function(params){
   res <- LTV:::get_prediction_daily_fixed(df_list = df_list, # 数据集
@@ -167,15 +161,24 @@ f <- function(params){
                                           message = FALSE,
                                           diff_type = "r2_adj",
                                           smooth = smooth)
+  # if (all(sort(params[-1]) == params[-1]) & min(params[-1]) == params[1]) {
+  #   return(-res$diff) # 最小化
+  # }
+  # return(0)
+
   return(-res$diff)
+
 }
 
-r <- optim(c(rep(0.5, 5), 0.8), f, method = "L-BFGS-B",
-           lower = c(rep(0.5, 5), 0.8),
-           upper = c(rep(1, 5), 0.999), control = list(trace = TRUE, ndeps = rep(1e-5, 6), maxit = 10000))
+file_name = "Data/info.csv"
+train_cr = 0.90
+diff_days = 120
+smooth = FALSE
 
-# r <- optim(rep(0.5, 5),f, method = "BFGS", control = list(trace = TRUE, ndeps = rep(1e-3, 5), maxit = 10000))
+df_list <- make_df(file_name = file_name, train_cr = train_cr, diff_days = diff_days)
 
+# 无导数优化 ---------------------------------------------------------------------------
+r <- hjkb(c(rep(0.6, 4), 0.8), f, upper = 0.9999, lower = 0.5)
 
 LTV:::get_prediction_daily_fixed(df_list = df_list, # 数据集
                                  type = "test", # 以训练集拟合参数
@@ -184,7 +187,7 @@ LTV:::get_prediction_daily_fixed(df_list = df_list, # 数据集
                                  csv = FALSE,
                                  plot = TRUE,
                                  message = FALSE,
-                                 diff_type = "mse",
+                                 diff_type = "r2_adj",
                                  smooth = smooth)
 
 
@@ -200,8 +203,20 @@ lt$new
 # 新用户留存预估
 lt$ring_retain_new_rates
 
+plot(lt$ring_retain_new_rates[1:180])
+plot(diff(lt$ring_retain_new_rates[1:60]))
+
 # 新用户留存预估:30日留存
 lt$ring_retain_new_rates[30]
 
 # 老用户生命周期
 lt$old
+
+
+# 废弃 ----------------------------------------------------------------
+r <- optim(c(rep(0.5, 5), 0.8), f, method = "L-BFGS-B",
+           lower = c(rep(0.5, 5), 0.8),
+           upper = c(rep(1, 5), 0.999), control = list(trace = TRUE, ndeps = rep(1e-5, 6), maxit = 10000))
+
+# r <- optim(c(rep(0.5, 5), 0.8), f, method = "BFGS", control = list(trace = 100L, ndeps = rep(1e-5, 6), maxit = 10000))
+

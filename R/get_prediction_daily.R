@@ -336,12 +336,14 @@ get_prediction_daily_fixed <- function(df_list, #  需要计算的数据集
   # 得到各日相对于首日的环比留存率
 
   ring_retain_new <- c(params[1:3], rep(params[4],5))
+  # ring_retain_new <- params[1:8]
   ring_retain_old <- params[5]
 
   if(is.character(ring_retain_new)) {
     ring_retain_new <- str_split(ring_retain_new, ",")[[1]]
   }
 
+  # TODO 改成对数函数?
   ring_retain_new_rates <- map2(ring_retain_new, rep_days, rep) %>%
     unlist %>%
     cumprod
