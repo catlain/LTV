@@ -63,12 +63,12 @@ res <- foreach(i = 1:50000,
                       "forecast",
                       "LTV"
                       )) %dopar% {
-  res <- get_ring_retain(start = 0.3, max = 0.99999)
+  param <- get_ring_retain(start = 0.6, max = 0.99999)
   tryCatch({
     get_prediction_daily(df_list = df_list, # 数据集
                          type = "train", # 以训练集拟合参数
-                         ring_retain_new = res$ring_retain_new,
-                         ring_retain_old = res$ring_retain_old,
+                         ring_retain_new = param$ring_retain_new,
+                         ring_retain_old = param$ring_retain_old,
                          csv = FALSE,
                          plot = FALSE,
                          message = FALSE,
@@ -84,6 +84,7 @@ stopCluster(cl)
 # 从所有尝试中得到差异最小的100组,取中位数
 top_res <- arrange(res, diff) %>%
   head(10) %>%
+  # head(1) %>%
   separate(ring_retain_new, sep = ",", paste0("retain_new", c(2, 4, 7, 16, 30, 120, 180, 360)), convert = TRUE) %>%
   select(contains("retain_new"), ring_retain_old)
 
@@ -145,3 +146,41 @@ best_retain <- get_prediction_daily(df_list = df_list, # 以训练集拟合参�
                                     message = FALSE,
                                     smooth = FALSE)
 best_retain
+
+# 最优化求参数 ----------------------------------------------------------------------
+
+file_name = "Data/info.csv"
+train_cr = 0.98
+diff_days = 60
+smooth = FALSE
+csv = FALSE
+
+df_list <- make_df(file_name = file_name, train_cr = train_cr, diff_days = diff_days)
+
+f <- function(params){
+  res <- LTV:::get_prediction_daily_fixed(df_list = df_list, # 数据集
+                                          type = "train", # 以训练集拟合参数
+                                          params = params,
+                                          prediction_retain_one = 0.48, # 需要预测的新用户次留(计算总留存天数)
+                                          csv = FALSE,
+                                          plot = FALSE,
+                                          message = FALSE,
+                                          diff_type = "mse",
+                                          smooth = smooth)
+  return(res$diff)
+}
+
+r <- optim(rep(0.5, 5),f, method = "L-BFGS-B",
+           lower = c(0.5, 0.7, 0.9, 0.9, 0.9),
+           upper = c(0.9, 0.9, 0.99, 0.999, 0.999), control = list(trace = TRUE, ndeps = rep(1e-5, 5)))
+
+
+LTV:::get_prediction_daily_fixed(df_list = df_list, # 数据集
+                                 type = "test", # 以训练集拟合参数
+                                 params = r$par,
+                                 prediction_retain_one = 0.48, # 需要预测的新用户次留(计算总留存天数)
+                                 csv = FALSE,
+                                 plot = TRUE,
+                                 message = FALSE,
+                                 diff_type = "mse",
+                                 smooth = smooth)
