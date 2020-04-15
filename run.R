@@ -149,10 +149,10 @@ best_retain
 
 # 最优化求参数 ----------------------------------------------------------------------
 
-file_name = "Data/info.csv"
+file_name = "Data/dau_appstore_new.csv"
 train_cr = 0.98
-diff_days = 60
-smooth = FALSE
+diff_days = 360
+smooth = TRUE
 csv = FALSE
 
 df_list <- make_df(file_name = file_name, train_cr = train_cr, diff_days = diff_days)
@@ -165,14 +165,14 @@ f <- function(params){
                                           csv = FALSE,
                                           plot = FALSE,
                                           message = FALSE,
-                                          diff_type = "mse",
+                                          diff_type = "r2_adj",
                                           smooth = smooth)
-  return(res$diff)
+  return(-res$diff)
 }
 
-r <- optim(rep(0.5, 5), f, method = "L-BFGS-B",
-           lower = rep(0, 5),
-           upper = rep(1, 5), control = list(trace = TRUE, ndeps = rep(1e-3, 5), maxit = 10000))
+r <- optim(c(rep(0.5, 5), 0.8), f, method = "L-BFGS-B",
+           lower = c(rep(0.5, 5), 0.8),
+           upper = c(rep(1, 5), 0.999), control = list(trace = TRUE, ndeps = rep(1e-5, 6), maxit = 10000))
 
 # r <- optim(rep(0.5, 5),f, method = "BFGS", control = list(trace = TRUE, ndeps = rep(1e-3, 5), maxit = 10000))
 
