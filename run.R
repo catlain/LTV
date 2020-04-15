@@ -170,9 +170,11 @@ f <- function(params){
   return(res$diff)
 }
 
-r <- optim(rep(0.5, 5),f, method = "L-BFGS-B",
-           lower = c(0.5, 0.7, 0.9, 0.9, 0.9),
-           upper = c(0.9, 0.9, 0.99, 0.999, 0.999), control = list(trace = TRUE, ndeps = rep(1e-5, 5)))
+r <- optim(rep(0.5, 5), f, method = "L-BFGS-B",
+           lower = rep(0, 5),
+           upper = rep(1, 5), control = list(trace = TRUE, ndeps = rep(1e-3, 5), maxit = 10000))
+
+# r <- optim(rep(0.5, 5),f, method = "BFGS", control = list(trace = TRUE, ndeps = rep(1e-3, 5), maxit = 10000))
 
 
 LTV:::get_prediction_daily_fixed(df_list = df_list, # 数据集
@@ -184,3 +186,22 @@ LTV:::get_prediction_daily_fixed(df_list = df_list, # 数据集
                                  message = FALSE,
                                  diff_type = "mse",
                                  smooth = smooth)
+
+
+lt <- get_life_time(retain_users_old_daily_true = 0,
+                    ring_retain_new = c(r$par[1:3], rep(r$par[4],5)),
+                    prediction_retain_one = 0.64,
+                    ring_retain_old = 0,
+                    life_time_year = 1)
+
+# 新增用户生命周期
+lt$new
+
+# 新用户留存预估
+lt$ring_retain_new_rates
+
+# 新用户留存预估:30日留存
+lt$ring_retain_new_rates[30]
+
+# 老用户生命周期
+lt$old
