@@ -152,50 +152,61 @@ best_retain
 # 无导数最优化求参数 ----------------------------------------------------------------------
 
 f <- function(params){
-  res <- LTV:::get_prediction_daily_fixed(df_list = df_list, # 数据集
+  res <- get_prediction_daily(df_list = df_list, # 数据集
                                           type = "train", # 以训练集拟合参数
                                           params = params,
                                           prediction_retain_one = 0.48, # 需要预测的新用户次留(计算总留存天数)
                                           csv = FALSE,
                                           plot = FALSE,
                                           message = FALSE,
-                                          diff_type = "r2_adj",
+                                          diff_type = diff_type,
                                           smooth = smooth)
   # if (all(sort(params[-1]) == params[-1]) & min(params[-1]) == params[1]) {
   #   return(-res$diff) # 最小化
   # }
   # return(0)
 
-  return(-res$diff)
+  if (diff_type == "mse") {
+    return(res$diff)
+  }
+
+  if (diff_type == "r2_adj") {
+    return(-res$diff)
+  }
+
 
 }
 
-file_name = "Data/info.csv"
+file_name = "Data/info1_fixed.csv"
 train_cr = 0.90
-diff_days = 120
-smooth = FALSE
+diff_days = 360
+smooth = TRUE
+diff_type = "r2_adj"
 
-df_list <- make_df(file_name = file_name, train_cr = train_cr, diff_days = diff_days)
+df_list <- make_df(file_name = file_name,
+                   train_cr = train_cr,
+                   diff_days = diff_days)
 
 # 无导数优化 ---------------------------------------------------------------------------
-r <- hjkb(c(rep(0.6, 4), 0.8), f, upper = 0.9999, lower = 0.5)
+r <- hjkb(c(rep(0.5, 7), 0.8), f, upper = 0.9999, lower = 0.5)
+# r <- nmkb(c(rep(0.51, 7), 0.8), f, upper = 0.9999, lower = 0.5)
 
-LTV:::get_prediction_daily_fixed(df_list = df_list, # 数据集
+res <- get_prediction_daily(df_list = df_list, # 数据集
                                  type = "test", # 以训练集拟合参数
                                  params = r$par,
                                  prediction_retain_one = 0.48, # 需要预测的新用户次留(计算总留存天数)
-                                 csv = FALSE,
+                                 csv = TRUE,
                                  plot = TRUE,
                                  message = FALSE,
-                                 diff_type = "r2_adj",
+                                 diff_type = diff_type,
                                  smooth = smooth)
-
+res
 
 lt <- get_life_time(retain_users_old_daily_true = 0,
-                    ring_retain_new = c(r$par[1:3], rep(r$par[4],5)),
-                    prediction_retain_one = 0.64,
+                    ring_retain_new = res$ring_retain_new,
+                    prediction_retain_one = 0.17,
                     ring_retain_old = 0,
-                    life_time_year = 1)
+                    life_time_year = 10)
 
 # 新增用户生命周期
 lt$new
@@ -203,7 +214,8 @@ lt$new
 # 新用户留存预估
 lt$ring_retain_new_rates
 
-plot(lt$ring_retain_new_rates[1:180])
+plot(lt$ring_retain_new_rates[1:30])
+sum(lt$ring_retain_new_rates[1:365])
 plot(diff(lt$ring_retain_new_rates[1:60]))
 
 # 新用户留存预估:30日留存

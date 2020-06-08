@@ -25,7 +25,7 @@ get_life_time <- function(retain_users_old_daily_true,
   }
 
   # 每个环比参数影响的天数
-  rep_days <- c(2,4,7,16,30,120,180, life_time_year*365 - 360)
+  rep_days <- c(2,4,7,16,30,120,life_time_year*365 - 180)
 
   # 得到各日相对于首日的环比留存率
   ring_retain_new_rates <- map2(ring_retain_new, rep_days, rep) %>%

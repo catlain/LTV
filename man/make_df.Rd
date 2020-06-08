@@ -4,8 +4,12 @@
 \alias{make_df}
 \title{制作计算所需数据集}
 \usage{
-make_df(file_name = "Data/info.csv", train_cr = 0.7, diff_days = 30,
-  diff_base = 1.02)
+make_df(
+  file_name = "Data/info.csv",
+  train_cr = 0.7,
+  diff_days = 30,
+  diff_base = 1.02
+)
 }
 \arguments{
 \item{file_name:}{用来拟合的文件，包含真实DAU、DNU、次日留存等。默认 "Data/info.csv"}

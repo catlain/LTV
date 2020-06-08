@@ -26,8 +26,7 @@
 #'
 get_prediction_daily <- function(df_list, #  需要计算的数据集
                                  type = "train", # 以训练集拟合参数
-                                 ring_retain_new = c(0.8480, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861, 0.99, 0.99), # 新用户环比系数
-                                 ring_retain_old = 0.98, # 老用户环比系数
+                                 params = c(0.8480, 0.9138, 0.9525, 0.9679, 0.9801),
                                  prediction_retain_one = 0.48, # 需要预测的新用户次留(计算总留存天数)
                                  life_time_year = 1, # 预测生命周期年数
                                  csv = FALSE, # 是否输出 prediction.csv
@@ -45,7 +44,7 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
     info_df <- switch (type,
                        "train" = df_list$train_df,
                        "test" = df_list$test_df
-                       )
+    )
     train_days <- df_list$train_days
     diff_days <- df_list$diff_days
     diff_base <- df_list$diff_base
@@ -79,14 +78,26 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
                 if_max(total_days, 16),
                 if_max(total_days, 30),
                 if_max(total_days, 120),
-                if_max(total_days, 180),
-                if_max(total_days, total_days - 360))
+                if_max(total_days, total_days - 180))
 
   # 得到各日相对于首日的环比留存率
-  if(is.character(ring_retain_new)) {
-    ring_retain_new <- str_split(ring_retain_new, ",")[[1]]
-  }
 
+  params_new <- params[1:7]
+
+  # for (i in 2:7) {
+  #   if (params[i] <= params_new[i-1]) {
+  #     params_new[i] <- params_new[i-1]
+  #   }
+  # }
+
+  ring_retain_new <- params_new
+  ring_retain_old <- params[8]
+
+  # if(is.character(ring_retain_new)) {
+  #   ring_retain_new <- str_split(ring_retain_new, ",")[[1]]
+  # }
+
+  # TODO 改成对数函数?
   ring_retain_new_rates <- map2(ring_retain_new, rep_days, rep) %>%
     unlist %>%
     cumprod
@@ -163,7 +174,7 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
                         diff_type = diff_type,
                         diff_days = diff_days)
 
-  if (message) message(paste0("训练数据共有:", true_days, "日\n末", diff_days, "日加权调整R值为:", tail_diff))
+  if (message) message(paste0("训练数据共有:", true_days, "日\n末", diff_days, "日加权调整R值为:", tail_r2_adj))
 
   # 绘图观察拟合情况
 
@@ -244,27 +255,6 @@ get_prediction_daily <- function(df_list, #  需要计算的数据集
   return(res_df)
 }
 
-# get_best_ring_retain <-  function(n, precision = 1000, ring_retain = ring_retain_ios, area = 5, message = FALSE) {
-#   choice <- seq(ifelse(ring_retain[n]*precision - precision/area >= 0, ring_retain[n]*precision - precision/area, 0),
-#                 ifelse(ring_retain[n]*precision + precision/area <= precision, ring_retain[n]*precision + precision/area, precision))
-#   temp_diff <- 100
-#   new_temp_diff <- 100
-#   for(i in choice) {
-#     if(new_temp_diff <= temp_diff) {
-#       temp_diff <- new_temp_diff
-#       if (message) message("temp_diff: ", temp_diff)
-#       ring_retain[n] <- i/precision
-#       if (message) message(paste0("第 ", n, " 个参数为: ", ring_retain[n]))
-#       new_temp_diff <- abs(get_prediction_daily(ring_retain_new = ring_retain, csv = FALSE, plot = FALSE)$diff)
-#       if (message) message("new_temp_diff: ", new_temp_diff)
-#     }
-#   }
-#
-#   if (message) message("现参数整体为: ", paste(ring_retain, collapse = " "))
-#   return(ring_retain)
-#
-# }
-
 
 #' @export
 #' @import customLayout
@@ -330,18 +320,24 @@ get_prediction_daily_fixed <- function(df_list, #  需要计算的数据集
                 if_max(total_days, 16),
                 if_max(total_days, 30),
                 if_max(total_days, 120),
-                if_max(total_days, 180),
-                if_max(total_days, total_days - 360))
+                if_max(total_days, total_days - 180))
 
   # 得到各日相对于首日的环比留存率
 
-  ring_retain_new <- c(params[1:3], rep(params[4],5))
-  # ring_retain_new <- params[1:8]
-  ring_retain_old <- params[5]
+  params_new <- params[1:7]
 
-  if(is.character(ring_retain_new)) {
-    ring_retain_new <- str_split(ring_retain_new, ",")[[1]]
-  }
+  # for (i in 2:7) {
+  #   if (params[i] <= params_new[i-1]) {
+  #     params_new[i] <- params_new[i-1]
+  #   }
+  # }
+
+  ring_retain_new <- params_new
+  ring_retain_old <- params[8]
+
+  # if(is.character(ring_retain_new)) {
+  #   ring_retain_new <- str_split(ring_retain_new, ",")[[1]]
+  # }
 
   # TODO 改成对数函数?
   ring_retain_new_rates <- map2(ring_retain_new, rep_days, rep) %>%

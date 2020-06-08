@@ -4,10 +4,18 @@
 \alias{get_fit}
 \title{重复随机试验计算最优参数}
 \usage{
-get_fit(no_cores, file_name = "Data/info.csv", times = 50000,
-  train_cr = 0.8, diff_days = 30, start = 0.3,
-  prediction_retain_one = 0.33, max = 0.99999, smooth = FALSE,
-  csv = FALSE)
+get_fit(
+  no_cores,
+  file_name = "Data/info.csv",
+  times = 50000,
+  train_cr = 0.8,
+  diff_days = 30,
+  start = 0.3,
+  prediction_retain_one = 0.33,
+  max = 0.99999,
+  smooth = FALSE,
+  csv = FALSE
+)
 }
 \arguments{
 \item{no_cores:}{并行任务时，可用的cpu核数，通过 parallel::detectCores 取得目前总核心数 -1 得到。}

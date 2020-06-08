@@ -4,11 +4,20 @@
 \alias{get_prediction_daily}
 \title{使用已有系数拟合预测DAU并计算差异}
 \usage{
-get_prediction_daily(df_list, type = "train",
-  ring_retain_new = c(0.848, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861,
-  0.99, 0.99), ring_retain_old = 0.98, prediction_retain_one = 0.48,
-  life_time_year = 1, csv = FALSE, plot = TRUE, message = FALSE,
-  smooth = FALSE, analysis = FALSE)
+get_prediction_daily(
+  df_list,
+  type = "train",
+  ring_retain_new = c(0.848, 0.9138, 0.9525, 0.9679, 0.9801, 0.9861, 0.99, 0.99),
+  ring_retain_old = 0.98,
+  prediction_retain_one = 0.48,
+  life_time_year = 1,
+  csv = FALSE,
+  plot = TRUE,
+  message = FALSE,
+  smooth = FALSE,
+  analysis = FALSE,
+  diff_type = "mse"
+)
 }
 \arguments{
 \item{df_list:}{函数所需参数列表(df_list)，可由get_prediction_daily()获得。}
@@ -32,6 +41,8 @@ get_prediction_daily(df_list, type = "train",
 \item{smooth:}{是否使用时序分析包(forecast)获取趋势，目前只支持排除7日(周)影响。默认FALSE}
 
 \item{analysis:}{是否分析新老各段新增用户的留存贡献。默认FALSE}
+
+\item{diff_type:}{怎么计算差异。默认MSE}
 }
 \value{
 预测结果(df)

@@ -4,8 +4,13 @@
 \alias{get_life_time}
 \title{计算生命周期}
 \usage{
-get_life_time(retain_users_old_daily_true, ring_retain_new,
-  prediction_retain_one, ring_retain_old, life_time_year)
+get_life_time(
+  retain_users_old_daily_true,
+  ring_retain_new,
+  prediction_retain_one,
+  ring_retain_old,
+  life_time_year
+)
 }
 \arguments{
 \item{retain_users_old_daily_true:}{需要计算的老用户数。}
